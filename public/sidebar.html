@@ -1,0 +1,46 @@
+<!doctype html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <title>Eko Sidebar</title>
+  <script src="js/vendor.js"></script>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: #ffffff;
+    }
+    
+    /* Dark mode styles */
+    body.dark {
+      background-color: #1f1f1f;
+    }
+    
+    ::-webkit-scrollbar {
+      width: 5px;
+      height: 5px;
+      background-color: #fff;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background-color: #c1c1c1;
+    }
+    
+    /* Dark mode scrollbar */
+    body.dark ::-webkit-scrollbar {
+      background-color: #1f1f1f;
+    }
+    
+    body.dark ::-webkit-scrollbar-thumb {
+      background-color: #666666;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="root"></div>
+  <script src="js/sidebar.js"></script>
+</body>
+
+</html>
