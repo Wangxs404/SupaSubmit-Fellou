@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button, Input, Select } from 'antd';
 import { PlayCircleOutlined, StopOutlined, CheckOutlined } from '@ant-design/icons';
 
@@ -20,21 +20,96 @@ const ChatInput: React.FC<ChatInputProps> = ({
   const isSendButtonDisabled = running || prompt.trim() === '';
   
   // Selector states
-  const [projects, setProjects] = useState([
-    { id: '1', name: 'Job Application' },
-    { id: '2', name: 'Leave Contact' },
-    { id: '3', name: 'Product Promotion' }
-  ]);
-  
-  const [targets, setTargets] = useState([
-    { id: 'https://makeform.ai/f/XxPee7eh', name: 'https://makeform.ai/f/XxPee7eh' },
-    { id: 'https://www.pledge.health/waitlist', name: 'https://www.pledge.health/waitlist' },
-    { id: 'https://once.tools/submit', name: 'https://once.tools/submit' }
-  ]);
-  
+  const [projects, setProjects] = useState<Array<{ id: string; name: string }>>([]);
+  const [targets, setTargets] = useState<Array<{ id: string; name: string }>>([]);
   const [selectedProject, setSelectedProject] = useState('');
   const [selectedTarget, setSelectedTarget] = useState('');
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
+  
+  // Load projects and targets from storage
+  useEffect(() => {
+    loadProjectsAndTargets();
+    
+    // Listen for storage changes
+    const handleStorageChange = (changes: { [key: string]: chrome.storage.StorageChange }) => {
+      if (changes.projects) {
+        loadProjects();
+      }
+      if (changes.targets) {
+        loadTargets();
+      }
+    };
+    
+    chrome.storage.onChanged.addListener(handleStorageChange);
+    
+    return () => {
+      chrome.storage.onChanged.removeListener(handleStorageChange);
+    };
+  }, []);
+  
+  const loadProjectsAndTargets = async () => {
+    setLoading(true);
+    await Promise.all([loadProjects(), loadTargets()]);
+    setLoading(false);
+  };
+  
+  const loadProjects = async () => {
+    try {
+      const result = await chrome.storage.local.get(['projects']);
+      if (result.projects && result.projects.length > 0) {
+        // Transform projects data to match the expected format
+        const formattedProjects = result.projects.map((project: any) => ({
+          id: project.id,
+          name: project.projectName
+        }));
+        setProjects(formattedProjects);
+      } else {
+        // Default projects if none in storage
+        setProjects([
+          { id: '1', name: 'Job Application' },
+          { id: '2', name: 'Leave Contact' },
+          { id: '3', name: 'Product Promotion' }
+        ]);
+      }
+    } catch (error) {
+      console.error('Failed to load projects:', error);
+      // Set default projects on error
+      setProjects([
+        { id: '1', name: 'Job Application' },
+        { id: '2', name: 'Leave Contact' },
+        { id: '3', name: 'Product Promotion' }
+      ]);
+    }
+  };
+  
+  const loadTargets = async () => {
+    try {
+      const result = await chrome.storage.local.get(['targets']);
+      if (result.targets && result.targets.length > 0) {
+        // Transform targets data to match the expected format
+        const formattedTargets = result.targets.map((url: string) => ({
+          id: url,
+          name: url
+        }));
+        setTargets(formattedTargets);
+      } else {
+        // Default targets if none in storage
+        setTargets([
+          { id: 'https://makeform.ai/f/XxPee7eh', name: 'https://makeform.ai/f/XxPee7eh' },
+          { id: 'https://www.pledge.health/waitlist', name: 'https://www.pledge.health/waitlist' },
+          { id: 'https://once.tools/submit', name: 'https://once.tools/submit' }
+        ]);
+      }
+    } catch (error) {
+      console.error('Failed to load targets:', error);
+      // Set default targets on error
+      setTargets([
+        { id: 'https://makeform.ai/f/XxPee7eh', name: 'https://makeform.ai/f/XxPee7eh' },
+        { id: 'https://www.pledge.health/waitlist', name: 'https://www.pledge.health/waitlist' },
+        { id: 'https://once.tools/submit', name: 'https://once.tools/submit' }
+      ]);
+    }
+  };
   
   // Handle selection changes
   const handleProjectChange = (value: string) => {
@@ -141,7 +216,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
         onKeyDown={handleKeyDown}
         disabled={running}
         autoSize={{ minRows: 3, maxRows: 6 }}
-        placeholder="What can I help with?"
+        placeholder="select items for submiting task"
       />
       
       <div style={{ 

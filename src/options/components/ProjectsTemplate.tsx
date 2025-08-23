@@ -114,6 +114,8 @@ const ProjectsTemplate = () => {
     try {
       // Save projects to chrome.storage
       await chrome.storage.local.set({ projects });
+      // Notify that projects have been updated
+      console.log('Projects saved to storage:', projects);
     } catch (error) {
       console.error('Failed to save projects:', error);
       message.error('Failed to save projects');

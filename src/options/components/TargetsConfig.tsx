@@ -26,14 +26,21 @@ const TargetsConfig = () => {
 
   const loadTargets = async () => {
     try {
-      // In a real implementation, this would load from chrome.storage
-      // For now, we'll use mock data
-      const mockTargets = [
-        'https://makeform.ai/f/XxPee7eh',
-        'https://www.pledge.health/waitlist',
-        'https://once.tools/submit'
-      ];
-      setTargets(mockTargets);
+      // Load targets from chrome.storage
+      const result = await chrome.storage.local.get(['targets']);
+      if (result.targets && result.targets.length > 0) {
+        setTargets(result.targets);
+      } else {
+        // If no targets in storage, use mock data
+        const mockTargets = [
+          'https://makeform.ai/f/XxPee7eh',
+          'https://www.pledge.health/waitlist',
+          'https://once.tools/submit'
+        ];
+        setTargets(mockTargets);
+        // Save mock data to storage
+        await chrome.storage.local.set({ targets: mockTargets });
+      }
     } catch (error) {
       console.error('Failed to load targets:', error);
       message.error('Failed to load targets');
@@ -43,11 +50,19 @@ const TargetsConfig = () => {
   const handleSave = () => {
     form
       .validateFields()
-      .then(values => {
+      .then(async values => {
         // Filter out empty URLs
         const filteredUrls = values.urls.filter((url: string) => url.trim() !== '');
         setTargets(filteredUrls);
-        message.success('Targets updated successfully');
+        
+        // Save to chrome.storage
+        try {
+          await chrome.storage.local.set({ targets: filteredUrls });
+          message.success('Targets updated successfully');
+        } catch (error) {
+          console.error('Failed to save targets:', error);
+          message.error('Failed to save targets');
+        }
       })
       .catch(info => {
         console.log('Validate Failed:', info);

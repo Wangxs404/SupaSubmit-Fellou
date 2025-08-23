@@ -76,7 +76,7 @@ const SidePanel: React.FC = () => {
   const [running, setRunning] = useState(false);
   const [logs, setLogs] = useState<LogMessage[]>([]);
   const [streamLog, setStreamLog] = useState<LogMessage | null>(null);
-  const [prompt, setPrompt] = useState('Open Twitter, search for "SupaSubmit" and follow');
+  const [prompt, setPrompt] = useState('');
   const [messages, setMessages] = useState<Message[]>([]);
   const [showHistory, setShowHistory] = useState(false);
   const [isFollowUpMode, setIsFollowUpMode] = useState(false);
@@ -85,6 +85,7 @@ const SidePanel: React.FC = () => {
   const [projectName, setProjectName] = useState('');
   const [projectItems, setProjectItems] = useState<Array<{ key: string; value: string }>>([]);
   const [isDarkMode, setIsDarkMode] = useState(false);
+  const logsContainerRef = useRef<HTMLDivElement>(null);
 
   // Check for dark mode preference and sync with body class
   useEffect(() => {
@@ -193,10 +194,10 @@ const SidePanel: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    window.scrollTo({
-      behavior: "smooth",
-      top: document.body.scrollHeight,
-    });
+    // 自动滚动到日志容器底部
+    if (logsContainerRef.current) {
+      logsContainerRef.current.scrollTop = logsContainerRef.current.scrollHeight;
+    }
   }, [logs, streamLog]);
 
   const handleClick = () => {
@@ -326,7 +327,7 @@ const SidePanel: React.FC = () => {
   };
 
   return (
-    <Layout style={{ minHeight: '100vh' }}>
+    <Layout style={{ height: '100vh', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
       <Header style={{ 
         display: 'flex', 
         justifyContent: 'space-between', 
@@ -334,7 +335,11 @@ const SidePanel: React.FC = () => {
         padding: '0 16px',
         background: 'transparent',
         height: '56px',
-        lineHeight: '56px'
+        lineHeight: '56px',
+        position: 'sticky',
+        top: 0,
+        zIndex: 10,
+        width: '100%'
       }}>
         <div style={{ display: 'flex', alignItems: 'center' }}>
           {showHistory ? (
@@ -399,7 +404,7 @@ const SidePanel: React.FC = () => {
         </Content>
       ) : (
         <>
-          <Content style={{ padding: '16px', overflowY: 'auto' }}>
+          <Content style={{ padding: '16px', overflowY: 'auto', flex: '1 1 auto' }}>
             {messages.length === 0 && logs.length === 0 ? (
               <div style={{ 
                 display: 'flex', 
@@ -452,8 +457,12 @@ const SidePanel: React.FC = () => {
                   <Card 
                     title="Logs" 
                     size="small" 
-                    style={{ marginTop: '16px' }}
+                    style={{ marginTop: '16px', maxHeight: '500px', overflowY: 'hidden' }}
                   >
+                    <div 
+                      ref={logsContainerRef}
+                      style={{ maxHeight: '260px', overflowY: 'auto' }}
+                    >
                     {logs.map((log, index) => (
                       <pre
                         key={index}
@@ -481,6 +490,7 @@ const SidePanel: React.FC = () => {
                         [{streamLog.time}] {streamLog.log}
                       </pre>
                     )}
+                    </div>
                   </Card>
                 )}
               </>
@@ -490,7 +500,12 @@ const SidePanel: React.FC = () => {
           <Footer style={{ 
             padding: '16px', 
             background: 'transparent',
-            borderTop: '1px solid #f0f0f0'
+            borderTop: '1px solid #f0f0f0',
+            position: 'sticky',
+            bottom: 0,
+            zIndex: 10,
+            width: '100%',
+            flex: '0 0 auto'
           }}>
             <ChatInput
               prompt={prompt}
