@@ -130,8 +130,8 @@ RESPONSE REQUIREMENTS:
       headers: {
         'Authorization': `Bearer ${config.apiKey}`,
         'Content-Type': 'application/json',
-        'HTTP-Referer': 'https://fellou.ai', // Optional, for OpenRouter analytics
-        'X-Title': 'Fellou AI Extension' // Optional, for OpenRouter analytics
+        'HTTP-Referer': 'https://supasubmit.com', // Optional, for OpenRouter analytics
+        'X-Title': 'SupaSubmit Extension' // Optional, for OpenRouter analytics
       },
       body: JSON.stringify(requestBody)
     }).catch(error => {

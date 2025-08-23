@@ -21,9 +21,9 @@ const ChatInput: React.FC<ChatInputProps> = ({
   
   // Selector states
   const [projects, setProjects] = useState([
-    { id: '1', name: 'Tom' },
-    { id: '2', name: 'Jerry' },
-    { id: '3', name: 'Spark' }
+    { id: '1', name: 'Job Application' },
+    { id: '2', name: 'Leave Contact' },
+    { id: '3', name: 'Product Promotion' }
   ]);
   
   const [targets, setTargets] = useState([
@@ -89,7 +89,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
             disabled={loading || projects.length === 0}
             placeholder={loading ? 'Loading projects...' : projects.length === 0 ? 'No projects available' : 'Select project'}
             style={{ width: '100%' }}
-            dropdownMatchSelectWidth={false}
+            dropdownStyle={{ width: 200 }}
           >
             {projects.map(project => (
               <Select.Option 
@@ -110,7 +110,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
             disabled={loading || targets.length === 0}
             placeholder={loading ? 'Loading targets...' : targets.length === 0 ? 'No targets available' : 'Select target'}
             style={{ width: '100%' }}
-            dropdownMatchSelectWidth={false}
+            dropdownStyle={{ width: 300 }}
           >
             {targets.map(target => (
               <Select.Option 

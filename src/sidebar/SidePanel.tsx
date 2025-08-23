@@ -76,7 +76,7 @@ const SidePanel: React.FC = () => {
   const [running, setRunning] = useState(false);
   const [logs, setLogs] = useState<LogMessage[]>([]);
   const [streamLog, setStreamLog] = useState<LogMessage | null>(null);
-  const [prompt, setPrompt] = useState('Open Twitter, search for "Fellou AI" and follow');
+  const [prompt, setPrompt] = useState('Open Twitter, search for "SupaSubmit" and follow');
   const [messages, setMessages] = useState<Message[]>([]);
   const [showHistory, setShowHistory] = useState(false);
   const [isFollowUpMode, setIsFollowUpMode] = useState(false);
@@ -264,20 +264,33 @@ const SidePanel: React.FC = () => {
           id: '1',
           projectName: 'Tom',
           items: [
-            { key: 'name', value: 'Tom' },
-            { key: 'email', value: 'Tom@gmail.com' },
-            { key: 'phone num', value: '154634589' },
-            { key: 'apply for', value: 'Engineer' },
+            { key: 'name', value: 'Axis Wang' },
+            { key: 'email', value: '493941331@qq.com' },
+            { key: 'phone num', value: '13818181818' },
+            { key: 'application', value: 'Software Engineer' },
           ],
         },
         {
           id: '2',
-          projectName: 'Jerry',
+          projectName: 'Personal Info',
           items: [
-            { key: 'name', value: 'Jerry' },
-            { key: 'email', value: 'Jerry@gmail.com' },
-            { key: 'phone num', value: '5154dg689' },
-            { key: 'apply for', value: 'Designer' },
+            { key: 'First Name', value: 'Axis' },
+            { key: 'Last Name', value: 'Wang' },
+            { key: 'Organization Name', value: 'SupaSubmit' },
+            { key: 'Work Email', value: 'hello@supasubmit.com' },
+          ],
+        },
+        {
+          id: '3',
+          projectName: 'Product Info',
+          items: [
+            { key: 'makerName', value: 'Axis Wang' },
+            { key: 'makerEmail', value: 'hello@supasubmit.com' },
+            { key: 'productName', value: 'SupaSubmit' },
+            { key: 'productURL', value: 'https://supasubmit.com' },
+            { key: 'tagline', value: 'Automate Form Submissions with AI Intelligence' },
+            { key: 'description', value: 'Suapsubmit is a Vision-Based AI Agent for automate form filling' },
+            { key: 'price', value: 'Freemium' },
           ],
         }
       ];
@@ -298,7 +311,7 @@ const SidePanel: React.FC = () => {
 
   // Open options page in a new tab
   const openOptionsPage = () => {
-    chrome.tabs.create({ url: chrome.runtime.getURL('options.html') });
+    chrome.tabs.create({ url: chrome.runtime.getURL('options.html#projects-template') });
   };
 
   const getLogStyle = (level: string) => {
@@ -347,7 +360,7 @@ const SidePanel: React.FC = () => {
               }}>
                 <EyeOutlined />
               </div>
-              <Title level={5} style={{ margin: 0, color: 'white' }}>Fellou</Title>
+              <Title level={5} style={{ margin: 0, color: isDarkMode ? 'white' : '#1f2937' }}>SupaSubmit</Title>
             </div>
           )}
         </div>
@@ -359,13 +372,13 @@ const SidePanel: React.FC = () => {
                 icon={<PlusOutlined />} 
                 onClick={handleNewChat}
                 type="text"
-                style={{ color: 'white' }}
+                style={{ color: isDarkMode ? 'white' : '#1f2937' }}
               />
               <Button 
                 icon={<HistoryOutlined />} 
                 onClick={() => setShowHistory(true)}
                 type="text"
-                style={{ color: 'white' }}
+                style={{ color: isDarkMode ? 'white' : '#1f2937' }}
               />
             </>
           )}
@@ -373,7 +386,7 @@ const SidePanel: React.FC = () => {
             icon={<SettingOutlined />} 
             onClick={openOptionsPage}
             type="text"
-            style={{ color: 'white' }}
+            style={{ color: isDarkMode ? 'white' : '#1f2937' }}
           />
         </Space>
       </Header>
@@ -398,7 +411,7 @@ const SidePanel: React.FC = () => {
                 padding: '20px'
               }}>
                 <Title level={3} style={{ marginBottom: '16px' }}>
-                  Welcome to Fellou
+                  Welcome to SupaSubmit
                 </Title>
                 
                 {/* <Card 
@@ -424,12 +437,12 @@ const SidePanel: React.FC = () => {
                     >
                       here
                     </Button>{' '}
-                    to set up your templates, or get a quick start.
+                    to set up your templates.
                   </Text>
-                  <TemplateList 
+                  {/* <TemplateList 
                     templates={defaultTemplates} 
                     onTemplateSelect={handleTemplateSelect}
-                  />
+                  /> */}
                 </div>
               </div>
             ) : (

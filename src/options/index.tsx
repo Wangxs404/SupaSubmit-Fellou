@@ -21,6 +21,14 @@ const OptionsPage = () => {
   const [selectedKey, setSelectedKey] = useState("api-key");
   const [darkMode, setDarkMode] = useState(false);
 
+  // Check URL hash on component mount
+  useEffect(() => {
+    const hash = window.location.hash.substring(1); // Remove the '#' character
+    if (hash && ['api-key', 'projects-template', 'targets'].includes(hash)) {
+      setSelectedKey(hash);
+    }
+  }, []);
+
   // Load theme preference from storage
   useEffect(() => {
     chrome.storage.local.get(['darkMode'], (result) => {
@@ -54,16 +62,11 @@ const OptionsPage = () => {
   }, [darkMode]);
 
   const menuItems = [
-    {
-      key: "api-key",
-      icon: <KeyOutlined />,
-      label: "API Key Configuration",
-      component: <ApiKeyConfig />
-    },
+    
     {
       key: "projects-template",
       icon: <FolderOutlined />,
-      label: "Projects Template",
+      label: "Projects",
       component: <ProjectsTemplate />
     },
     {
@@ -71,6 +74,12 @@ const OptionsPage = () => {
       icon: <AimOutlined />,
       label: "Targets",
       component: <TargetsConfig />
+    },
+    {
+      key: "api-key",
+      icon: <KeyOutlined />,
+      label: "API-Key",
+      component: <ApiKeyConfig />
     }
   ];
 
@@ -88,27 +97,25 @@ const OptionsPage = () => {
           className="options-sider"
           theme="light"
         >
-          <div className="logo">
-            <Title level={4} style={{ color: '#fff', textAlign: 'center', padding: '16px 0', margin: 0 }}>
-              <SettingOutlined /> Fellou
-            </Title>
-          </div>
-          <div style={{ 
+          <div className="logo" style={{ 
             display: 'flex', 
             alignItems: 'center', 
-            justifyContent: 'center', 
-            padding: '12px 0',
+            justifyContent: 'space-between', 
+            padding: '16px 16px', 
             borderBottom: '1px solid rgba(255, 255, 255, 0.1)'
           }}>
-            {darkMode ? <BulbFilled style={{ color: '#ffd700', marginRight: 8 }} /> : <BulbOutlined style={{ color: '#fff', marginRight: 8 }} />}
-            <Switch
-              checked={darkMode}
-              onChange={toggleTheme}
-              checkedChildren="Dark"
-              unCheckedChildren="Light"
-              size="small"
-              style={{ backgroundColor: darkMode ? '#1890ff' : undefined }}
-            />
+            <Title level={4} style={{ color: darkMode ? '#fff' : '#000', margin: 0, flex: 1 }}>
+              <SettingOutlined /> SupaSubmit
+            </Title>
+            <div style={{ display: 'flex', alignItems: 'center' }}>
+              {darkMode ? <BulbFilled style={{ color: '#ffd700', marginRight: 8 }} /> : <BulbOutlined style={{ color: '#fff', marginRight: 8 }} />}
+              <Switch
+                checked={darkMode}
+                onChange={toggleTheme}
+                size="small"
+                style={{ backgroundColor: darkMode ? '#1890ff' : undefined }}
+              />
+            </div>
           </div>
           <Menu
             mode="inline"

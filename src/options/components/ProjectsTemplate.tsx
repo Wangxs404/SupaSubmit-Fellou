@@ -64,24 +64,39 @@ const ProjectsTemplate = () => {
         const mockProjects: Project[] = [
           {
             id: '1',
-            projectName: 'Tom',
+            projectName: 'Job Application',
             items: [
-              { key: 'name', value: 'Tom' },
-              { key: 'email', value: 'Tom@gmail.com' },
-              { key: 'phone num', value: '154634589' },
-              { key: 'apply for', value: 'Engineer' },
+              { key: 'name', value: 'Axis Wang' },
+              { key: 'email', value: '493941331@qq.com' },
+              { key: 'phone num', value: '13818181818' },
+              { key: 'application', value: 'Software Engineer' },
             ],
             createdAt: Date.now(),
             updatedAt: Date.now(),
           },
           {
             id: '2',
-            projectName: 'Jerry',
+            projectName: 'Leave Contact',
             items: [
-              { key: 'name', value: 'Jerry' },
-              { key: 'email', value: 'Jerry@gmail.com' },
-              { key: 'phone num', value: '5154dg689' },
-              { key: 'apply for', value: 'Designer' },
+              { key: 'First Name', value: 'Axis' },
+              { key: 'Last Name', value: 'Wang' },
+              { key: 'Organization Name', value: 'SupaSubmit' },
+              { key: 'Work Email', value: 'hello@supasubmit.com' },
+            ],
+            createdAt: Date.now(),
+            updatedAt: Date.now(),
+          },
+          {
+            id: '3',
+            projectName: 'Product Promotion',
+            items: [
+              { key: 'makerName', value: 'Axis Wang' },
+              { key: 'makerEmail', value: 'hello@supasubmit.com' },
+              { key: 'productName', value: 'SupaSubmit' },
+              { key: 'productURL', value: 'https://supasubmit.com' },
+              { key: 'tagline', value: 'Automate Form Submissions with AI Intelligence' },
+              { key: 'description', value: 'Suapsubmit is a Vision-Based AI Agent for automate form filling' },
+              { key: 'price', value: 'Freemium' },
             ],
             createdAt: Date.now(),
             updatedAt: Date.now(),
@@ -414,7 +429,7 @@ const ProjectsTemplate = () => {
         className="parse-section"
       >
         <div style={{ maxWidth: '800px', margin: '0 auto' }}>
-          <div style={{ border: '1px solid #f0f0f0', borderRadius: '8px', padding: '16px', background: '#fff', boxShadow: '0 1px 2px rgba(0,0,0,0.03)' }}>
+          <div className="parse-input-container" style={{ border: '1px solid #f0f0f0', borderRadius: '8px', padding: '16px', boxShadow: '0 1px 2px rgba(0,0,0,0.03)' }}>
             {/* Text input area */}
             <div>
               <TextArea
@@ -516,60 +531,107 @@ const ProjectsTemplate = () => {
         </div>
         
         {projects.length > 0 ? (
-          <div style={{ maxHeight: '500px', overflowY: 'auto' }}>
-            <List
-              dataSource={projects}
-              renderItem={project => (
-                <Card 
-                  key={project.id}
-                  size="small"
-                  title={<Text strong>{project.projectName}</Text>}
-                  extra={
-                    <div style={{ display: 'flex', gap: 8 }}>
+          <div style={{ 
+            display: 'grid', 
+            gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', 
+            gap: '16px',
+            maxHeight: '500px', 
+            overflowY: 'auto',
+            padding: '8px'
+          }}>
+            {projects.map(project => (
+              <Card 
+                key={project.id}
+                size="small"
+                hoverable
+                style={{ 
+                  borderRadius: '8px',
+                  boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+                  transition: 'all 0.3s ease'
+                }}
+                bodyStyle={{ padding: '16px' }}
+              >
+                <div style={{ marginBottom: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                  <Title level={5} style={{ margin: 0, color: '#1890ff' }}>{project.projectName}</Title>
+                  <div style={{ display: 'flex', gap: 4 }}>
+                    <Button 
+                      icon={<EditOutlined />} 
+                      onClick={() => showModal(project)}
+                      size="small"
+                      type="text"
+                    />
+                    <Popconfirm
+                      title="Delete project"
+                      description="Are you sure you want to delete this project?"
+                      onConfirm={() => deleteProject(project.id)}
+                      okText="Yes"
+                      cancelText="No"
+                    >
                       <Button 
-                        icon={<EditOutlined />} 
-                        onClick={() => showModal(project)}
+                        icon={<DeleteOutlined />} 
+                        danger
                         size="small"
-                      >
-                        Edit
-                      </Button>
-                      <Popconfirm
-                        title="Delete project"
-                        description="Are you sure you want to delete this project?"
-                        onConfirm={() => deleteProject(project.id)}
-                        okText="Yes"
-                        cancelText="No"
-                      >
-                        <Button 
-                          icon={<DeleteOutlined />} 
-                          danger
-                          size="small"
-                        >
-                          Delete
-                        </Button>
-                      </Popconfirm>
-                    </div>
-                  }
-                  style={{ marginBottom: 16 }}
-                >
-                  <div>
-                    {project.items.map((item, index) => (
-                      <div key={index} className="item-row">
-                        <Text strong className="item-key">{item.key}:</Text>
-                        <Text className="item-value">{item.value}</Text>
-                      </div>
-                    ))}
+                        type="text"
+                      />
+                    </Popconfirm>
                   </div>
-                  <Text type="secondary" style={{ fontSize: '12px', marginTop: 12 }}>
-                    Created: {new Date(project.createdAt).toLocaleString()}
+                </div>
+                
+                <div style={{ marginBottom: '12px' }}>
+                  {project.items.slice(0, 4).map((item, index) => (
+                    <div key={index} style={{ 
+                      display: 'flex', 
+                      marginBottom: '6px',
+                      fontSize: '13px'
+                    }}>
+                      <Text strong style={{ 
+                        minWidth: '80px', 
+                        color: '#666',
+                        marginRight: '8px'
+                      }}>{item.key}:</Text>
+                      <Text style={{ 
+                        flex: 1,
+                        wordBreak: 'break-word',
+                        color: '#333'
+                      }}>{item.value}</Text>
+                    </div>
+                  ))}
+                  {project.items.length > 4 && (
+                    <Text type="secondary" style={{ fontSize: '12px' }}>
+                      +{project.items.length - 4} more items
+                    </Text>
+                  )}
+                </div>
+                
+                <div style={{ 
+                  borderTop: '1px solid #f0f0f0',
+                  paddingTop: '8px',
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center'
+                }}>
+                  <Text type="secondary" style={{ fontSize: '11px' }}>
+                    {new Date(project.createdAt).toLocaleDateString()}
                   </Text>
-                </Card>
-              )}
-            />
+                  <Text type="secondary" style={{ fontSize: '11px' }}>
+                    {project.items.length} items
+                  </Text>
+                </div>
+              </Card>
+            ))}
           </div>
         ) : (
-          <Card style={{ textAlign: 'center', padding: '40px 0' }}>
-            <Text type="secondary">No projects yet. Click "Add Project" to create your first project.</Text>
+          <Card style={{ 
+            textAlign: 'center', 
+            padding: '40px 20px',
+            border: '2px dashed #d9d9d9',
+            borderRadius: '8px',
+            background: '#fafafa'
+          }}>
+            <div style={{ color: '#8c8c8c' }}>
+              <PlusOutlined style={{ fontSize: '24px', marginBottom: '8px', display: 'block' }} />
+              <Text type="secondary">No projects yet. Click "Add Project" to create your first project.</Text>
+            </div>
           </Card>
         )}
 

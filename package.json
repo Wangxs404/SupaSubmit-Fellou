@@ -5,10 +5,10 @@
   "scripts": {
     "build": "webpack --config webpack.js"
   },
-  "author": "FellouAI",
-  "license": "MIT",
+  "author": "Axis Wang",
+  "license": "AGPL-3.0-or-later",
   "keywords": [
-    "fellou",
+    "supasubmit",
     "eko"
   ],
   "dependencies": {

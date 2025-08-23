@@ -15,6 +15,37 @@
   margin-bottom: 16px;
 }
 
+/* Light mode styles for sidebar */
+body:not(.dark) .options-sider {
+  background: #ffffff !important;
+  border-right: 1px solid #f0f0f0;
+}
+
+body:not(.dark) .options-sider .logo {
+  background: #f8f9fa;
+}
+
+body:not(.dark) .options-sider .logo .ant-typography {
+  color: #1f2937 !important;
+}
+
+body:not(.dark) .options-sider .ant-menu {
+  background: #ffffff;
+}
+
+body:not(.dark) .options-sider .ant-menu-item {
+  color: #1f2937;
+}
+
+body:not(.dark) .options-sider .ant-menu-item:hover {
+  background-color: #f0f2f5;
+}
+
+body:not(.dark) .options-sider .ant-menu-item-selected {
+  background-color: #e6f7ff;
+  color: #1890ff;
+}
+
 .options-menu {
   height: calc(100% - 64px);
   border-right: 0;
@@ -90,6 +121,26 @@ body.dark ::-webkit-scrollbar-thumb:hover {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   padding: 24px;
   margin-bottom: 24px;
+}
+
+/* Parse input container styles */
+.parse-input-container {
+  background: #ffffff;
+}
+
+body.dark .parse-input-container {
+  background: #1f1f1f;
+  border-color: #424242 !important;
+}
+
+body.dark .parse-input-container .ant-input {
+  background: transparent;
+  color: #ffffff;
+  border: none;
+}
+
+body.dark .parse-input-container .ant-input::placeholder {
+  color: #8c8c8c;
 }
 
 .card-title {
