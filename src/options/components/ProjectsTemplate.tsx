@@ -13,7 +13,7 @@ import {
   Divider,
   Upload
 } from "antd";
-import { PlusOutlined, EditOutlined, DeleteOutlined, SendOutlined, UploadOutlined } from '@ant-design/icons';
+import { PlusOutlined, EditOutlined, DeleteOutlined, SendOutlined, UploadOutlined, PaperClipOutlined, GlobalOutlined, ArrowUpOutlined } from '@ant-design/icons';
 
 const { TextArea } = Input;
 const { Title, Text } = Typography;
@@ -413,73 +413,66 @@ const ProjectsTemplate = () => {
         bordered={false}
         className="parse-section"
       >
-        <Form layout="vertical">
-          <Form.Item
-            label="Upload File"
-            help="Upload a PDF, Word (.docx), Markdown (.md), or Text (.txt) file to extract text"
-          >
-            <Upload
-              beforeUpload={(file) => {
-                const supportedTypes = [
-                  'application/pdf',
-                  'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-                  'text/markdown',
-                  'text/plain'
-                ];
-                
-                const supportedExtensions = ['.pdf', '.docx', '.md', '.txt'];
-                const fileExtension = '.' + file.name.split('.').pop()?.toLowerCase();
-                
-                if (!supportedTypes.includes(file.type) && !supportedExtensions.includes(fileExtension)) {
-                  message.error('Unsupported file type. Please upload a PDF, Word (.docx), Markdown (.md), or Text (.txt) file.');
-                  return false;
-                }
-                extractTextFromFile(file);
-                return false;
-              }}
-              fileList={fileList}
-              onRemove={() => setFileList([])}
-              maxCount={1}
-              showUploadList={{
-                showDownloadIcon: false,
-                showPreviewIcon: false
-              }}
-            >
-              <Button 
-                icon={<UploadOutlined />} 
-                loading={uploading}
-              >
-                Select File
-              </Button>
-            </Upload>
-          </Form.Item>
-          
-          <Divider>OR</Divider>
-          
-          <Form.Item
-            label="Input Text"
-            help="Enter text to parse, e.g., 姓名=jakc,年龄=18 or name=jack,age=18"
-          >
-            <TextArea
-              value={inputText}
-              onChange={(e) => setInputText(e.target.value)}
-              placeholder="Enter text to parse, e.g., 姓名=jakc,年龄=18 or name=jack,age=18"
-              autoSize={{ minRows: 3, maxRows: 6 }}
-              className="parse-textarea"
-            />
-          </Form.Item>
-          <Form.Item>
-            <Button 
-              type="primary" 
-              icon={<SendOutlined />} 
-              onClick={parseInputText}
-              className="parse-button"
-              disabled={!inputText.trim()}
-            >
-              Parse
-            </Button>
-          </Form.Item>
-        </Form>
+        <div style={{ maxWidth: '800px', margin: '0 auto' }}>
+          <div style={{ border: '1px solid #f0f0f0', borderRadius: '8px', padding: '16px', background: '#fff', boxShadow: '0 1px 2px rgba(0,0,0,0.03)' }}>
+            {/* Text input area */}
+            <div>
+              <TextArea
+                value={inputText}
+                onChange={(e) => setInputText(e.target.value)}
+                placeholder="输入要解析的文本..."
+                autoSize={{ minRows: 2, maxRows: 6 }}
+                style={{ border: 'none', resize: 'none' }}
+              />
+            </div>
+
+            {/* Action buttons at the bottom */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '12px', paddingTop: '12px', borderTop: '1px solid #f0f0f0' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <Button
+                  type="text"
+                  size="small"
+                  icon={<PaperClipOutlined />}
+                  onClick={() => {
+                    // Handle file upload
+                    const input = document.createElement('input');
+                    input.type = 'file';
+                    input.accept = '.pdf,.docx,.md,.txt';
+                    input.onchange = (e) => {
+                      const file = (e.target as HTMLInputElement).files?.[0];
+                      if (file) {
+                        const fileExtension = '.' + file.name.split('.').pop()?.toLowerCase();
+                        const supportedExtensions = ['.pdf', '.docx', '.md', '.txt'];
+                        
+                        if (!supportedExtensions.includes(fileExtension)) {
+                          message.error('Unsupported file type. Please upload a PDF, Word (.docx), Markdown (.md), or Text (.txt) file.');
+                          return;
+                        }
+                        extractTextFromFile(file);
+                      }
+                    };
+                    input.click();
+                  }}
+                />
+                <Button
+                  type="text"
+                  size="small"
+                  icon={<GlobalOutlined />}
+                />
+              </div>
+              
+              {/* Send button on the right */}
+              <Button
+                type="primary"
+                shape="circle"
+                size="small"
+                disabled={!inputText.trim()}
+                onClick={parseInputText}
+                icon={<ArrowUpOutlined />}
+              />
+            </div>
+          </div>
+        </div>
       </Card>
         
         {/* Parsed Items Display */}
@@ -587,6 +580,18 @@ const ProjectsTemplate = () => {
         onOk={handleModalOk}
         onCancel={handleModalCancel}
         width={600}
+        footer={[
+          <Button key="cancel" onClick={handleModalCancel}>
+            Cancel
+          </Button>,
+          <Button 
+            key="submit" 
+            type="primary" 
+            onClick={handleModalOk}
+          >
+            {editingProject ? "Update" : "Add"}
+          </Button>,
+        ]}
       >
         <Form form={form} layout="vertical">
           <Form.Item
@@ -646,6 +651,18 @@ const ProjectsTemplate = () => {
         onOk={handlePreviewModalOk}
         onCancel={handlePreviewModalCancel}
         width={600}
+        footer={[
+          <Button key="cancel" onClick={handlePreviewModalCancel}>
+            Cancel
+          </Button>,
+          <Button 
+            key="submit" 
+            type="primary" 
+            onClick={handlePreviewModalOk}
+          >
+            Create Project
+          </Button>,
+        ]}
       >
         <Form form={previewForm} layout="vertical">
           <Form.Item
