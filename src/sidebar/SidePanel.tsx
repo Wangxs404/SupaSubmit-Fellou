@@ -28,7 +28,6 @@ import {
 import MessageList from './components/MessageList';
 import ChatInput from './components/ChatInput';
 import TemplateList from './components/TemplateList';
-import SelectorDropdowns from './components/SelectorDropdowns';
 
 const { Header, Content, Footer } = Layout;
 const { Title, Text } = Typography;
@@ -402,12 +401,18 @@ const SidePanel: React.FC = () => {
                   Welcome to Fellou
                 </Title>
                 
-                <Card 
+                {/* <Card 
                   title="Get Started" 
                   style={{ width: '100%', maxWidth: '500px', marginBottom: '24px' }}
                 >
-                  <SelectorDropdowns onSelectionChange={handleSelectionChange} />
-                </Card>
+                  <ChatInput
+                    prompt={prompt}
+                    setPrompt={setPrompt}
+                    running={running}
+                    handleClick={handleClick}
+                    onSelectionChange={handleSelectionChange}
+                  />
+                </Card> */}
                 
                 <div style={{ width: '100%', maxWidth: '500px' }}>
                   <Text style={{ marginBottom: '16px', display: 'block' }}>
@@ -474,16 +479,12 @@ const SidePanel: React.FC = () => {
             background: 'transparent',
             borderTop: '1px solid #f0f0f0'
           }}>
-            {messages.length > 0 && (
-              <div style={{ marginBottom: "12px" }}>
-                <SelectorDropdowns onSelectionChange={handleSelectionChange} />
-              </div>
-            )}
             <ChatInput
               prompt={prompt}
               setPrompt={setPrompt}
               running={running}
               handleClick={handleClick}
+              onSelectionChange={handleSelectionChange}
             />
           </Footer>
         </>
