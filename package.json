@@ -16,6 +16,9 @@
     "@eko-ai/eko": "^2.0.9",
     "@eko-ai/eko-extension": "^2.0.9",
     "antd": "^5.22.4",
+    "mammoth": "^1.10.0",
+    "marked": "^16.2.0",
+    "pdfjs-dist": "3.4.120",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
   },

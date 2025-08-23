@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { 
   Button, 
   message, 
@@ -10,9 +10,10 @@ import {
   Typography, 
   Space, 
   Popconfirm,
-  Divider
+  Divider,
+  Upload
 } from "antd";
-import { PlusOutlined, EditOutlined, DeleteOutlined, SendOutlined } from '@ant-design/icons';
+import { PlusOutlined, EditOutlined, DeleteOutlined, SendOutlined, UploadOutlined } from '@ant-design/icons';
 
 const { TextArea } = Input;
 const { Title, Text } = Typography;
@@ -39,6 +40,8 @@ const ProjectsTemplate = () => {
   const [previewForm] = Form.useForm();
   const [inputText, setInputText] = useState('');
   const [parsedItems, setParsedItems] = useState<{key: string, value: string}[]>([]);
+  const [fileList, setFileList] = useState<any[]>([]);
+  const [uploading, setUploading] = useState(false);
 
   // Load projects from storage
   useEffect(() => {
@@ -182,6 +185,139 @@ const ProjectsTemplate = () => {
     message.info('Parsing text with LLM...');
   };
   
+  // Extract text from various file formats
+  const extractTextFromFile = async (file: File) => {
+    try {
+      setUploading(true);
+      message.info(`Extracting text from ${file.name}...`);
+      
+      let extractedText = '';
+      
+      if (file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf')) {
+        // PDF file extraction
+        extractedText = await extractTextFromPDF(file);
+      } else if (file.type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' || 
+                 file.name.toLowerCase().endsWith('.docx')) {
+        // Word DOCX file extraction
+        extractedText = await extractTextFromWord(file);
+      } else if (file.type === 'text/markdown' || file.name.toLowerCase().endsWith('.md')) {
+        // Markdown file extraction
+        extractedText = await extractTextFromMarkdown(file);
+      } else if (file.type === 'text/plain' || file.name.toLowerCase().endsWith('.txt')) {
+        // Plain text file extraction
+        extractedText = await extractTextFromTxt(file);
+      } else {
+        // Unsupported file type
+        message.error('Unsupported file type. Please upload a PDF, Word (.docx), Markdown (.md), or Text (.txt) file.');
+        setUploading(false);
+        return;
+      }
+      
+      // Set the extracted text to the input text area
+      setInputText(extractedText);
+      
+      message.success(`Successfully extracted text from ${file.name}. Click "Parse" to extract key-value pairs.`);
+    } catch (error) {
+      console.error('Error extracting text:', error);
+      message.error('Failed to extract text from file: ' + (error as Error).message);
+    } finally {
+      setUploading(false);
+    }
+  };
+  
+  // Extract text from PDF files using a simpler approach
+  const extractTextFromPDF = async (file: File): Promise<string> => {
+    try {
+      // Read the file as ArrayBuffer
+      const arrayBuffer = await file.arrayBuffer();
+      
+      // Dynamically import pdfjs-dist
+      const pdfjsLib = await import('pdfjs-dist/build/pdf.min.js');
+      
+      // Try to set up a fake worker to avoid CSP issues
+      try {
+        pdfjsLib.GlobalWorkerOptions.workerSrc = null;
+      } catch (e) {
+        // Ignore worker setup errors
+      }
+      
+      // Load the PDF document with fallback options
+      const loadingTask = pdfjsLib.getDocument({
+        data: arrayBuffer,
+        disableWorker: true,
+        disableStream: true,
+        disableAutoFetch: true
+      });
+      
+      const pdf = await loadingTask.promise;
+      
+      // Extract text from all pages
+      let fullText = '';
+      const numPages = Math.min(pdf.numPages, 50); // Limit to 50 pages for performance
+      
+      for (let i = 1; i <= numPages; i++) {
+        try {
+          const page = await pdf.getPage(i);
+          const textContent = await page.getTextContent();
+          const pageText = textContent.items.map((item: any) => item.str).join(' ');
+          fullText += pageText + '\n\n';
+        } catch (pageError) {
+          console.warn(`Failed to extract text from page ${i}:`, pageError);
+          // Continue with other pages
+        }
+      }
+      
+      return fullText;
+    } catch (error) {
+      console.error('PDF extraction error:', error);
+      throw new Error('Failed to extract text from PDF. The PDF file may be corrupted, password-protected, or unsupported. Error: ' + (error as Error).message);
+    }
+  };
+  
+  // Extract text from Word DOCX files
+  const extractTextFromWord = async (file: File): Promise<string> => {
+    try {
+      // Dynamically import mammoth to avoid bundling it in the main bundle
+      const mammoth = await import('mammoth');
+      
+      // Read the file as ArrayBuffer
+      const arrayBuffer = await file.arrayBuffer();
+      
+      // Extract text from Word document
+      const result = await mammoth.extractRawText({ arrayBuffer });
+      return result.value;
+    } catch (error) {
+      throw new Error('Failed to extract text from Word document: ' + (error as Error).message);
+    }
+  };
+  
+  // Extract text from Markdown files
+  const extractTextFromMarkdown = async (file: File): Promise<string> => {
+    try {
+      // Read the file as text
+      const text = await file.text();
+      
+      // Dynamically import marked to avoid bundling it in the main bundle
+      const { marked } = await import('marked');
+      
+      // Convert markdown to plain text (simple approach - remove markdown syntax)
+      // For a more sophisticated approach, we could convert to HTML and then extract text
+      return text;
+    } catch (error) {
+      throw new Error('Failed to extract text from Markdown file: ' + (error as Error).message);
+    }
+  };
+  
+  // Extract text from plain text files
+  const extractTextFromTxt = async (file: File): Promise<string> => {
+    try {
+      // Read the file as text
+      return await file.text();
+    } catch (error) {
+      throw new Error('Failed to extract text from text file: ' + (error as Error).message);
+    }
+  };
+  
   // Listen for parsed items from background script
   useEffect(() => {
     const handleMessage = (request: any) => {
@@ -279,6 +415,48 @@ const ProjectsTemplate = () => {
       >
         <Form layout="vertical">
           <Form.Item
+            label="Upload File"
+            help="Upload a PDF, Word (.docx), Markdown (.md), or Text (.txt) file to extract text"
+          >
+            <Upload
+              beforeUpload={(file) => {
+                const supportedTypes = [
+                  'application/pdf',
+                  'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                  'text/markdown',
+                  'text/plain'
+                ];
+                
+                const supportedExtensions = ['.pdf', '.docx', '.md', '.txt'];
+                const fileExtension = '.' + file.name.split('.').pop()?.toLowerCase();
+                
+                if (!supportedTypes.includes(file.type) && !supportedExtensions.includes(fileExtension)) {
+                  message.error('Unsupported file type. Please upload a PDF, Word (.docx), Markdown (.md), or Text (.txt) file.');
+                  return false;
+                }
+                extractTextFromFile(file);
+                return false;
+              }}
+              fileList={fileList}
+              onRemove={() => setFileList([])}
+              maxCount={1}
+              showUploadList={{
+                showDownloadIcon: false,
+                showPreviewIcon: false
+              }}
+            >
+              <Button 
+                icon={<UploadOutlined />} 
+                loading={uploading}
+              >
+                Select File
+              </Button>
+            </Upload>
+          </Form.Item>
+          
+          <Divider>OR</Divider>
+          
+          <Form.Item
             label="Input Text"
             help="Enter text to parse, e.g., 姓名=jakc,年龄=18 or name=jack,age=18"
           >
@@ -296,6 +474,7 @@ const ProjectsTemplate = () => {
               icon={<SendOutlined />} 
               onClick={parseInputText}
               className="parse-button"
+              disabled={!inputText.trim()}
             >
               Parse
             </Button>
@@ -423,6 +602,64 @@ const ProjectsTemplate = () => {
             label="Project Items"
             rules={[{ required: true, message: 'Please add at least one item' }]}
             initialValue={[{ key: '', value: '' }]}
+          >
+            <Form.List name="items">
+              {(fields, { add, remove }) => (
+                <>
+                  {fields.map(({ key, name, ...restField }) => (
+                    <Space key={key} style={{ display: 'flex', marginBottom: 8 }} align="baseline">
+                      <Form.Item
+                        {...restField}
+                        name={[name, 'key']}
+                        rules={[{ required: true, message: 'Missing key' }]}
+                      >
+                        <Input placeholder="Key" />
+                      </Form.Item>
+                      <Form.Item
+                        {...restField}
+                        name={[name, 'value']}
+                        rules={[{ required: true, message: 'Missing value' }]}
+                      >
+                        <Input placeholder="Value" />
+                      </Form.Item>
+                      <Button onClick={() => remove(name)} danger>
+                        Remove
+                      </Button>
+                    </Space>
+                  ))}
+                  <Form.Item>
+                    <Button type="dashed" onClick={() => add()} block icon={<PlusOutlined />}>
+                      Add Item
+                    </Button>
+                  </Form.Item>
+                </>
+              )}
+            </Form.List>
+          </Form.Item>
+        </Form>
+      </Modal>
+      
+      {/* Preview Modal */}
+      <Modal
+        title="Preview Parsed Items"
+        open={isPreviewModalVisible}
+        onOk={handlePreviewModalOk}
+        onCancel={handlePreviewModalCancel}
+        width={600}
+      >
+        <Form form={previewForm} layout="vertical">
+          <Form.Item
+            name="projectName"
+            label="Project Name"
+            rules={[{ required: true, message: 'Please enter a project name' }]}
+          >
+            <Input placeholder="Enter project name" />
+          </Form.Item>
+          
+          <Form.Item
+            name="items"
+            label="Project Items"
+            rules={[{ required: true, message: 'Please add at least one item' }]}
           >
             <Form.List name="items">
               {(fields, { add, remove }) => (

@@ -37,10 +37,23 @@ module.exports = {
   },
   resolve: {
     extensions: [".ts", ".tsx", ".js", ".css"],
+    fallback: {
+      "fs": false,
+      "path": false,
+      "url": false,
+      "zlib": false,
+      "http": false,
+      "https": false,
+      "stream": false,
+      "buffer": false,
+      "crypto": false
+    }
   },
   plugins: [
     new CopyWebpackPlugin({
-      patterns: [{ from: "public", to: "../" }],
+      patterns: [
+        { from: "public", to: "../" }
+      ],
       options: {},
     }),
   ],
